@@ -222,12 +222,12 @@ func (d *Dialer) DialContext(ctx context.Context, urlStr string, requestHeader h
 			}
 		case k == "Upgrade" ||
 			k == "Connection" ||
-			k == "Sec-Websocket-Key" ||
-			k == "Sec-Websocket-Version" ||
-			k == "Sec-Websocket-Extensions" ||
-			(k == "Sec-Websocket-Protocol" && len(d.Subprotocols) > 0):
+			k == "Sec-WebSocket-Key" ||
+			k == "Sec-WebSocket-Version" ||
+			k == "Sec-WebSocket-Extensions" ||
+			(k == "Sec-WebSocket-Protocol" && len(d.Subprotocols) > 0):
 			return nil, nil, errors.New("websocket: duplicate header not allowed: " + k)
-		case k == "Sec-Websocket-Protocol":
+		case k == "Sec-WebSocket-Protocol":
 			req.Header["Sec-WebSocket-Protocol"] = vs
 		default:
 			req.Header[k] = vs
@@ -393,7 +393,7 @@ func (d *Dialer) DialContext(ctx context.Context, urlStr string, requestHeader h
 	if resp.StatusCode != 101 ||
 		!tokenListContainsValue(resp.Header, "Upgrade", "websocket") ||
 		!tokenListContainsValue(resp.Header, "Connection", "upgrade") ||
-		resp.Header.Get("Sec-Websocket-Accept") != computeAcceptKey(challengeKey) {
+		resp.Header.Get("Sec-WebSocket-Accept") != computeAcceptKey(challengeKey) {
 		// Before closing the network connection on return from this
 		// function, slurp up some of the response to aid application
 		// debugging.
@@ -418,7 +418,7 @@ func (d *Dialer) DialContext(ctx context.Context, urlStr string, requestHeader h
 	}
 
 	resp.Body = io.NopCloser(bytes.NewReader([]byte{}))
-	conn.subprotocol = resp.Header.Get("Sec-Websocket-Protocol")
+	conn.subprotocol = resp.Header.Get("Sec-WebSocket-Protocol")
 
 	netConn.SetDeadline(time.Time{})
 	netConn = nil // to avoid close in defer.

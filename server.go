@@ -52,7 +52,7 @@ type Upgrader struct {
 	// preference. If this field is not nil, then the Upgrade method negotiates a
 	// subprotocol by selecting the first match in this list with a protocol
 	// requested by the client. If there's no match, then no protocol is
-	// negotiated (the Sec-Websocket-Protocol header is not included in the
+	// negotiated (the Sec-WebSocket-Protocol header is not included in the
 	// handshake response).
 	Subprotocols []string
 
@@ -81,7 +81,7 @@ func (u *Upgrader) returnError(w http.ResponseWriter, r *http.Request, status in
 	if u.Error != nil {
 		u.Error(w, r, status, err)
 	} else {
-		w.Header().Set("Sec-Websocket-Version", "13")
+		w.Header().Set("Sec-WebSocket-Version", "13")
 		http.Error(w, http.StatusText(status), status)
 	}
 	return nil, err
@@ -111,7 +111,7 @@ func (u *Upgrader) selectSubprotocol(r *http.Request, responseHeader http.Header
 			}
 		}
 	} else if responseHeader != nil {
-		return responseHeader.Get("Sec-Websocket-Protocol")
+		return responseHeader.Get("Sec-WebSocket-Protocol")
 	}
 	return ""
 }
@@ -137,11 +137,11 @@ func (u *Upgrader) Upgrade(w http.ResponseWriter, r *http.Request, responseHeade
 		return u.returnError(w, r, http.StatusMethodNotAllowed, badHandshake+"request method is not GET")
 	}
 
-	if !tokenListContainsValue(r.Header, "Sec-Websocket-Version", "13") {
-		return u.returnError(w, r, http.StatusBadRequest, "websocket: unsupported version: 13 not found in 'Sec-Websocket-Version' header")
+	if !tokenListContainsValue(r.Header, "Sec-WebSocket-Version", "13") {
+		return u.returnError(w, r, http.StatusBadRequest, "websocket: unsupported version: 13 not found in 'Sec-WebSocket-Version' header")
 	}
 
-	if _, ok := responseHeader["Sec-Websocket-Extensions"]; ok {
+	if _, ok := responseHeader["Sec-WebSocket-Extensions"]; ok {
 		return u.returnError(w, r, http.StatusInternalServerError, "websocket: application specific 'Sec-WebSocket-Extensions' headers are unsupported")
 	}
 
@@ -153,7 +153,7 @@ func (u *Upgrader) Upgrade(w http.ResponseWriter, r *http.Request, responseHeade
 		return u.returnError(w, r, http.StatusForbidden, "websocket: request origin not allowed by Upgrader.CheckOrigin")
 	}
 
-	challengeKey := r.Header.Get("Sec-Websocket-Key")
+	challengeKey := r.Header.Get("Sec-WebSocket-Key")
 	if !isValidChallengeKey(challengeKey) {
 		return u.returnError(w, r, http.StatusBadRequest, "websocket: not a websocket handshake: 'Sec-WebSocket-Key' header must be Base64 encoded value of 16-byte in length")
 	}
@@ -228,7 +228,7 @@ func (u *Upgrader) Upgrade(w http.ResponseWriter, r *http.Request, responseHeade
 		p = append(p, "Sec-WebSocket-Extensions: permessage-deflate; server_no_context_takeover; client_no_context_takeover\r\n"...)
 	}
 	for k, vs := range responseHeader {
-		if k == "Sec-Websocket-Protocol" {
+		if k == "Sec-WebSocket-Protocol" {
 			continue
 		}
 		for _, v := range vs {
@@ -280,12 +280,12 @@ func (u *Upgrader) Upgrade(w http.ResponseWriter, r *http.Request, responseHeade
 // If the endpoint supports subprotocols, then the application is responsible
 // for negotiating the protocol used on the connection. Use the Subprotocols()
 // function to get the subprotocols requested by the client. Use the
-// Sec-Websocket-Protocol response header to specify the subprotocol selected
+// Sec-WebSocket-Protocol response header to specify the subprotocol selected
 // by the application.
 //
 // The responseHeader is included in the response to the client's upgrade
 // request. Use the responseHeader to specify cookies (Set-Cookie) and the
-// negotiated subprotocol (Sec-Websocket-Protocol).
+// negotiated subprotocol (Sec-WebSocket-Protocol).
 //
 // The connection buffers IO to the underlying network connection. The
 // readBufSize and writeBufSize parameters specify the size of the buffers to
@@ -307,9 +307,9 @@ func Upgrade(w http.ResponseWriter, r *http.Request, responseHeader http.Header,
 }
 
 // Subprotocols returns the subprotocols requested by the client in the
-// Sec-Websocket-Protocol header.
+// Sec-WebSocket-Protocol header.
 func Subprotocols(r *http.Request) []string {
-	h := strings.TrimSpace(r.Header.Get("Sec-Websocket-Protocol"))
+	h := strings.TrimSpace(r.Header.Get("Sec-WebSocket-Protocol"))
 	if h == "" {
 		return nil
 	}

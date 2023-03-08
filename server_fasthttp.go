@@ -56,7 +56,7 @@ type FastHTTPUpgrader struct {
 	// preference. If this field is not nil, then the Upgrade method negotiates a
 	// subprotocol by selecting the first match in this list with a protocol
 	// requested by the client. If there's no match, then no protocol is
-	// negotiated (the Sec-Websocket-Protocol header is not included in the
+	// negotiated (the Sec-WebSocket-Protocol header is not included in the
 	// handshake response).
 	Subprotocols []string
 
@@ -85,7 +85,7 @@ func (u *FastHTTPUpgrader) responseError(ctx *fasthttp.RequestCtx, status int, r
 	if u.Error != nil {
 		u.Error(ctx, status, err)
 	} else {
-		ctx.Response.Header.Set("Sec-Websocket-Version", "13")
+		ctx.Response.Header.Set("Sec-WebSocket-Version", "13")
 		ctx.Error(fasthttp.StatusMessage(status), status)
 	}
 
@@ -94,7 +94,7 @@ func (u *FastHTTPUpgrader) responseError(ctx *fasthttp.RequestCtx, status int, r
 
 func (u *FastHTTPUpgrader) selectSubprotocol(ctx *fasthttp.RequestCtx) []byte {
 	if u.Subprotocols != nil {
-		clientProtocols := parseDataHeader(ctx.Request.Header.Peek("Sec-Websocket-Protocol"))
+		clientProtocols := parseDataHeader(ctx.Request.Header.Peek("Sec-WebSocket-Protocol"))
 
 		for _, serverProtocol := range u.Subprotocols {
 			for _, clientProtocol := range clientProtocols {
@@ -104,7 +104,7 @@ func (u *FastHTTPUpgrader) selectSubprotocol(ctx *fasthttp.RequestCtx) []byte {
 			}
 		}
 	} else if ctx.Response.Header.Len() > 0 {
-		return ctx.Response.Header.Peek("Sec-Websocket-Protocol")
+		return ctx.Response.Header.Peek("Sec-WebSocket-Protocol")
 	}
 
 	return nil
@@ -146,11 +146,11 @@ func (u *FastHTTPUpgrader) Upgrade(ctx *fasthttp.RequestCtx, handler FastHTTPHan
 		return u.responseError(ctx, fasthttp.StatusBadRequest, fmt.Sprintf("%s 'websocket' token not found in 'Upgrade' header", badHandshake))
 	}
 
-	if !tokenContainsValue(strconv.B2S(ctx.Request.Header.Peek("Sec-Websocket-Version")), "13") {
-		return u.responseError(ctx, fasthttp.StatusBadRequest, "websocket: unsupported version: 13 not found in 'Sec-Websocket-Version' header")
+	if !tokenContainsValue(strconv.B2S(ctx.Request.Header.Peek("Sec-WebSocket-Version")), "13") {
+		return u.responseError(ctx, fasthttp.StatusBadRequest, "websocket: unsupported version: 13 not found in 'Sec-WebSocket-Version' header")
 	}
 
-	if len(ctx.Response.Header.Peek("Sec-Websocket-Extensions")) > 0 {
+	if len(ctx.Response.Header.Peek("Sec-WebSocket-Extensions")) > 0 {
 		return u.responseError(ctx, fasthttp.StatusInternalServerError, "websocket: application specific 'Sec-WebSocket-Extensions' headers are unsupported")
 	}
 
@@ -162,7 +162,7 @@ func (u *FastHTTPUpgrader) Upgrade(ctx *fasthttp.RequestCtx, handler FastHTTPHan
 		return u.responseError(ctx, fasthttp.StatusForbidden, "websocket: request origin not allowed by FastHTTPUpgrader.CheckOrigin")
 	}
 
-	challengeKey := ctx.Request.Header.Peek("Sec-Websocket-Key")
+	challengeKey := ctx.Request.Header.Peek("Sec-WebSocket-Key")
 	if len(challengeKey) == 0 {
 		return u.responseError(ctx, fasthttp.StatusBadRequest, "websocket: not a websocket handshake: `Sec-WebSocket-Key' header is missing or blank")
 	}

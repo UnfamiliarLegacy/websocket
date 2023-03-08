@@ -257,7 +257,7 @@ func parseExtensions(header http.Header) []map[string]string {
 
 	var result []map[string]string
 headers:
-	for _, s := range header["Sec-Websocket-Extensions"] {
+	for _, s := range header["Sec-WebSocket-Extensions"] {
 		for {
 			var t string
 			t, s = nextToken(skipSpace(s))

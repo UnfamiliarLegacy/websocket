@@ -440,9 +440,9 @@ func TestDialBadHeader(t *testing.T) {
 
 	for _, k := range []string{"Upgrade",
 		"Connection",
-		"Sec-Websocket-Key",
-		"Sec-Websocket-Version",
-		"Sec-Websocket-Protocol"} {
+		"Sec-WebSocket-Key",
+		"Sec-WebSocket-Version",
+		"Sec-WebSocket-Protocol"} {
 		h := http.Header{}
 		h.Set(k, "bad")
 		ws, _, err := cstDialer.Dial(s.URL, http.Header{"Origin": {"bad"}})
@@ -469,7 +469,7 @@ func TestBadMethod(t *testing.T) {
 	}
 	req.Header.Set("Connection", "upgrade")
 	req.Header.Set("Upgrade", "websocket")
-	req.Header.Set("Sec-Websocket-Version", "13")
+	req.Header.Set("Sec-WebSocket-Version", "13")
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -483,10 +483,10 @@ func TestBadMethod(t *testing.T) {
 
 func TestDialExtraTokensInRespHeaders(t *testing.T) {
 	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		challengeKey := r.Header.Get("Sec-Websocket-Key")
+		challengeKey := r.Header.Get("Sec-WebSocket-Key")
 		w.Header().Set("Upgrade", "foo, websocket")
 		w.Header().Set("Connection", "upgrade, keep-alive")
-		w.Header().Set("Sec-Websocket-Accept", computeAcceptKey(challengeKey))
+		w.Header().Set("Sec-WebSocket-Accept", computeAcceptKey(challengeKey))
 		w.WriteHeader(101)
 	}))
 	defer s.Close()

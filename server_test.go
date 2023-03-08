@@ -28,7 +28,7 @@ var subprotocolTests = []struct {
 
 func TestSubprotocols(t *testing.T) {
 	for _, st := range subprotocolTests {
-		r := http.Request{Header: http.Header{"Sec-Websocket-Protocol": {st.h}}}
+		r := http.Request{Header: http.Header{"Sec-WebSocket-Protocol": {st.h}}}
 		protocols := Subprotocols(&r)
 		if !reflect.DeepEqual(st.protocols, protocols) {
 			t.Errorf("SubProtocols(%q) returned %#v, want %#v", st.h, protocols, st.protocols)
@@ -102,8 +102,8 @@ func TestBufioReuse(t *testing.T) {
 			Header: http.Header{
 				"Upgrade":               []string{"websocket"},
 				"Connection":            []string{"upgrade"},
-				"Sec-Websocket-Key":     []string{"dGhlIHNhbXBsZSBub25jZQ=="},
-				"Sec-Websocket-Version": []string{"13"},
+				"Sec-WebSocket-Key":     []string{"dGhlIHNhbXBsZSBub25jZQ=="},
+				"Sec-WebSocket-Version": []string{"13"},
 			}}, nil)
 		if err != nil {
 			t.Fatal(err)
