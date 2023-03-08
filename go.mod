@@ -1,4 +1,4 @@
-module github.com/fasthttp/websocket
+module github.com/UnfamiliarLegacy/websocket
 
 go 1.16
 
