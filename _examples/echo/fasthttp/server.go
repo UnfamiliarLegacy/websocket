@@ -12,7 +12,7 @@ import (
 	"html/template"
 	"log"
 
-	"github.com/fasthttp/websocket"
+	"github.com/UnfamiliarLegacy/websocket"
 	"github.com/valyala/fasthttp"
 )
 

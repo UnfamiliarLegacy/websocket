@@ -13,7 +13,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/fasthttp/websocket"
+	"github.com/UnfamiliarLegacy/websocket"
 )
 
 const (
